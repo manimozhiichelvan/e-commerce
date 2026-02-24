@@ -1,0 +1,43 @@
+.amazon-navbar {
+  background-color: #131921;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 30px;
+}
+
+.nav-left h2 {
+  cursor: pointer;
+  color: #f08804;
+}
+
+.nav-search {
+  display: flex;
+  width: 50%;
+}
+
+.nav-search input {
+  width: 100%;
+  padding: 8px;
+  border: none;
+}
+
+.nav-search button {
+  background: #febd69;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+}
+
+.nav-search button:hover {
+  background: #f3a847;
+}
+
+.nav-right button {
+  margin-left: 15px;
+  background: #f08804;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+}
