@@ -1,0 +1,58 @@
+.admin-container {
+  padding: 30px;
+  background-color: #f3f3f3;
+  min-height: 100vh;
+}
+
+.admin-container h2 {
+  margin-bottom: 15px;
+}
+
+
+.admin-form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.admin-form input {
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+
+.admin-form button {
+  grid-column: span 3;
+  padding: 10px;
+  background-color: #febd69;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.admin-form button:hover {
+  background-color: #f3a847;
+}
+
+
+.admin-container table {
+  width: 100%;
+  margin-bottom: 30px;
+  border-collapse: collapse;
+  background: white;
+}
+
+.admin-container th {
+  background-color: #131921;
+  color: white;
+}
+
+.admin-container td,
+.admin-container th {
+  padding: 10px;
+  text-align: center;
+}
+
+.admin-container select {
+  padding: 5px;
+}

@@ -1,67 +1,40 @@
 const db = require("../config/db");
 
-exports.createProduct = async (req, res) => {
-  try {
-    const { name, description, price, stock } = req.body;
-
-    await db.execute(
-      "INSERT INTO products (name, description, price, stock, created_by) VALUES (?,?,?,?,?)",
-      [name, description, price, stock, req.user.id]
-    );
-
-    res.status(201).json({ message: "Product Created Successfully" });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
-  }
-};
-
+// Get all products
 exports.getProducts = async (req, res) => {
   try {
-    const search = req.query.search || "";
-
-    const [products] = await db.execute(
-      "SELECT * FROM products WHERE name LIKE ?",
-      [`%${search}%`]
-    );
-
-    res.json(products);
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+    const [rows] = await db.execute("SELECT * FROM products");
+    res.json(rows);
+  } catch {
+    res.status(500).json({ message: "Failed to fetch products" });
   }
 };
 
-exports.updateProduct = async (req, res) => {
+// Create product (image is URL string)
+exports.createProduct = async (req, res) => {
   try {
-    const { name, description, price, stock } = req.body;
+    const { name, description, price, stock, image } = req.body;
 
     await db.execute(
-      "UPDATE products SET name=?, description=?, price=?, stock=? WHERE id=?",
-      [name, description, price, stock, req.params.id]
+      "INSERT INTO products (name, description, price, stock, image) VALUES (?, ?, ?, ?, ?)",
+      [name, description, price, stock, image]
     );
 
-    res.json({ message: "Product Updated Successfully" });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+    res.json({ message: "Product created successfully" });
+  } catch {
+    res.status(500).json({ message: "Product creation failed" });
   }
 };
 
+// Delete product
 exports.deleteProduct = async (req, res) => {
   try {
-    await db.execute(
-      "DELETE FROM products WHERE id=?",
-      [req.params.id]
-    );
+    const { id } = req.params;
 
-    res.json({ message: "Product Deleted Successfully" });
+    await db.execute("DELETE FROM products WHERE id=?", [id]);
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+    res.json({ message: "Product deleted successfully" });
+  } catch {
+    res.status(500).json({ message: "Delete failed" });
   }
 };

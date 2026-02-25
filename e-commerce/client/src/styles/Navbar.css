@@ -1,0 +1,59 @@
+.navbar {
+  background-color: #131921;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 30px;
+  align-items: center;
+}
+
+.admin-nav {
+  background-color: #111;
+}
+
+.navbar-left h2 {
+  margin: 0;
+}
+
+.navbar-right {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.navbar-right a {
+  color: white;
+  text-decoration: none;
+}
+
+.navbar-right a:hover {
+  text-decoration: underline;
+}
+
+.navbar-right button {
+  padding: 6px 12px;
+  background-color: #febd69;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+}
+
+.badge.free {
+  background-color: gray;
+}
+
+.badge.pro {
+  background-color: blue;
+}
+
+.badge.premium {
+  background-color: purple;
+}

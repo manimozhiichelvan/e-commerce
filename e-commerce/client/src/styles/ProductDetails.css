@@ -1,0 +1,39 @@
+.details-container {
+  padding: 40px;
+  background-color: #eaeded;
+  min-height: 100vh;
+}
+
+.details-card {
+  display: flex;
+  gap: 30px;
+  background: white;
+  padding: 30px;
+  border-radius: 5px;
+}
+
+.details-card img {
+  width: 350px;
+  height: 350px;
+  object-fit: cover;
+}
+
+.details-info {
+  flex: 1;
+}
+
+.details-info h2 {
+  margin-bottom: 15px;
+}
+
+.details-info button {
+  padding: 10px 15px;
+  background-color: #ffd814;
+  border: 1px solid #fcd200;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.details-info button:hover {
+  background-color: #f7ca00;
+}

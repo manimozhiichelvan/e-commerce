@@ -1,84 +1,63 @@
-import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "../api/axios";
-import { AuthContext } from "../context/AuthContext";
-import "./Login.css";
+import "../styles/Login.css";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
 
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
-
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("/auth/login", form);
-      login(res.data);
-
+      const res = await axios.post("/auth/login", {
+        email,
+        password,
+      });
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data.role);
+      localStorage.setItem("account_type", res.data.account_type);
       if (res.data.role === "admin") {
         navigate("/admin");
       } else {
         navigate("/products");
       }
-    } catch (err) {
-      alert(err.response?.data?.message || "Login Failed");
+
+    } catch (error) {
+      alert(error.response?.data?.message || "Login Failed");
     }
   };
 
   return (
-    <div className="login-page">
-      <div className="login-box">
+    <div className="login-container">
+      <form className="login-form" onSubmit={handleLogin}>
+        <h2>Login</h2>
 
-        <h1 className="logo">amazon</h1>
+        <input
+          type="email"
+          placeholder="Enter Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-        <div className="login-card">
-          <h2>Sign-In</h2>
+        <input
+          type="password"
+          placeholder="Enter Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-          <form onSubmit={handleSubmit}>
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
+        <button type="submit">Login</button>
 
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
-
-            <button type="submit" className="signin-btn">
-              Sign In
-            </button>
-          </form>
-
-          <p className="register-text">
-            New to Amazon?{" "}
-            <span onClick={() => navigate("/register")}>
-              Create your account
-            </span>
-          </p>
-        </div>
-
-      </div>
+        <p>
+          Dont have an account?{" "}
+          <Link to="/register">Register</Link>
+        </p>
+      </form>
     </div>
   );
 };

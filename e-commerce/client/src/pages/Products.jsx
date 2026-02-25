@@ -1,27 +1,21 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import Navbar from "../components/Navbar";
-import "./Products.css";
+import "../styles/Products.css";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const role = localStorage.getItem("role");
 
-  const fetchProducts = async (searchQuery = "") => {
+  const fetchProducts = async (query = "") => {
     try {
-      setLoading(true);
-
-      const res = await axios.get(
-        `/products?search=${searchQuery}`
-      );
-
+      const res = await axios.get(`/products?search=${query}`);
       setProducts(res.data);
-      setLoading(false);
-
     } catch (error) {
-      console.error("Product Fetch Error:", error);
-      setLoading(false);
+      console.log("Search error");
     }
   };
 
@@ -29,22 +23,23 @@ const Products = () => {
     fetchProducts();
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchProducts(search);
-  };
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      fetchProducts(search);
+    }, 300); 
 
-  const handleBuy = async (productId) => {
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
+
+  const handleAddToCart = async (id) => {
     try {
-      await axios.post("/orders/buy", {
-        product_id: productId,
+      await axios.post("/cart/add", {
+        product_id: id,
         quantity: 1,
       });
-
-      alert("Order placed successfully!");
-
+      alert("Added to cart successfully");
     } catch (error) {
-      alert(error.response?.data?.message || "Purchase failed");
+      alert("Add to cart failed");
     }
   };
 
@@ -54,68 +49,52 @@ const Products = () => {
 
       <div className="products-container">
 
-        <form className="search-bar" onSubmit={handleSearch}>
+        <div className="search-bar">
           <input
             type="text"
             placeholder="Search products..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button type="submit">Search</button>
-        </form>
-
-        {loading && (
-          <h2 className="status-text">Loading products...</h2>
-        )}
-
-        {!loading && products.length === 0 && (
-          <h2 className="status-text">
-            No products found
-          </h2>
-        )}
+        </div>
 
         <div className="product-grid">
-          {products.map((product) => (
-            <div key={product.id} className="product-card">
+          {products.length === 0 ? (
+            <h2>No Products Found</h2>
+          ) : (
+            products.map((p) => (
+              <div key={p.id} className="product-card">
 
-              <img
-                src={
-                  product.image
-                    ? product.image
-                    : "https://via.placeholder.com/250"
-                }
-                alt={product.name}
-              />
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  onClick={() => navigate(`/product/${p.id}`)}
+                  style={{ cursor: "pointer" }}
+                />
 
-              <h3>{product.name}</h3>
+                <h3
+                  onClick={() => navigate(`/product/${p.id}`)}
+                  style={{ cursor: "pointer" }}
+                >
+                  {p.name}
+                </h3>
 
-              <p className="description">
-                {product.description}
-              </p>
+                <p>{p.description}</p>
+                <p className="price">₹ {p.price}</p>
+                <p>Stock: {p.stock}</p>
 
-              <p className="price">
-                ₹ {product.price}
-              </p>
+                {role !== "admin" && (
+                  <button
+                    disabled={p.stock === 0}
+                    onClick={() => handleAddToCart(p.id)}
+                  >
+                    {p.stock > 0 ? "Add to Cart" : "Out of Stock"}
+                  </button>
+                )}
 
-              <p className="stock">
-                {product.stock > 0
-                  ? `In Stock (${product.stock})`
-                  : "Out of Stock"}
-              </p>
-
-  
-              <button
-                className="buy-btn"
-                disabled={product.stock === 0}
-                onClick={() => handleBuy(product.id)}
-              >
-                {product.stock > 0
-                  ? "Add to Cart"
-                  : "Unavailable"}
-              </button>
-
-            </div>
-          ))}
+              </div>
+            ))
+          )}
         </div>
 
       </div>

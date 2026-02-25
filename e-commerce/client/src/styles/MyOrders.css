@@ -1,0 +1,42 @@
+.orders-container {
+  padding: 30px;
+  background-color: #eaeded;
+  min-height: 100vh;
+}
+
+.orders-container h2 {
+  margin-bottom: 20px;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.orders-table th {
+  background-color: #131921;
+  color: white;
+  padding: 12px;
+}
+
+.orders-table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.status.pending {
+  color: orange;
+  font-weight: bold;
+}
+
+.status.shipped {
+  color: blue;
+  font-weight: bold;
+}
+
+.status.delivered {
+  color: green;
+  font-weight: bold;
+}

@@ -1,59 +1,116 @@
 const db = require("../config/db");
 
+
 exports.buyProduct = async (req, res) => {
   try {
     const { product_id, quantity } = req.body;
+    const user_id = req.user.id;
+    const account_type = req.user.account_type;
 
     if (!product_id || !quantity) {
-      return res.status(400).json({ message: "Product and quantity required" });
+      return res.status(400).json({ message: "Missing fields" });
     }
 
-    const [users] = await db.execute(
-      "SELECT account_type FROM users WHERE id=?",
-      [req.user.id]
+    if (account_type === "free" && quantity > 2) {
+      return res.status(403).json({
+        message: "Free users can buy maximum 2 items per order"
+      });
+    }
+
+    if (account_type === "pro" && quantity > 5) {
+      return res.status(403).json({
+        message: "Pro users can buy maximum 5 items per order"
+      });
+    }
+
+    const [product] = await db.execute(
+      "SELECT * FROM products WHERE id=?",
+      [product_id]
     );
 
-    if (users.length === 0) {
-      return res.status(404).json({ message: "User not found" });
+    if (product.length === 0) {
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    const accountType = users[0].account_type;
-
-    const [orders] = await db.execute(
-      "SELECT COUNT(*) as total FROM orders WHERE user_id=?",
-      [req.user.id]
-    );
-
-    const totalOrders = orders[0].total;
-
-    if (accountType === "free" && totalOrders >= 2) {
-      return res.status(403).json({ message: "Free account limit reached (2 orders)" });
-    }
-
-    if (accountType === "pro" && totalOrders >= 10) {
-      return res.status(403).json({ message: "Pro account limit reached (10 orders)" });
+    if (product[0].stock < quantity) {
+      return res.status(400).json({ message: "Out of stock" });
     }
 
     await db.execute(
-      "INSERT INTO orders (user_id, product_id, quantity) VALUES (?,?,?)",
-      [req.user.id, product_id, quantity]
+      "INSERT INTO orders (user_id, product_id, quantity, delivery_status, status_code) VALUES (?, ?, ?, 'pending', 0)",
+      [user_id, product_id, quantity]
     );
 
-    res.status(201).json({ message: "Order Placed Successfully" });
+    await db.execute(
+      "UPDATE products SET stock = stock - ? WHERE id=?",
+      [quantity, product_id]
+    );
+
+    res.json({ message: "Order placed successfully" });
 
   } catch (error) {
-    console.error(error);
+    console.error("BUY ERROR:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };
 
-exports.updateDelivery = async (req, res) => {
-  try {
-    const { status } = req.body;
 
-    if (!status) {
-      return res.status(400).json({ message: "Status required" });
-    }
+exports.getUserOrders = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+
+    const [orders] = await db.execute(`
+      SELECT 
+        orders.id,
+        products.name AS product_name,
+        orders.quantity,
+        orders.delivery_status,
+        orders.status_code,
+        orders.created_at
+      FROM orders
+      JOIN products ON orders.product_id = products.id
+      WHERE orders.user_id = ?
+    `, [user_id]);
+
+    res.json(orders);
+
+  } catch (error) {
+    console.error("USER ORDERS ERROR:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+
+exports.getAllOrders = async (req, res) => {
+  try {
+    const [orders] = await db.execute(`
+      SELECT 
+        orders.id,
+        users.name AS user_name,
+        products.name AS product_name,
+        orders.quantity,
+        orders.delivery_status,
+        orders.status_code,
+        orders.created_at
+      FROM orders
+      JOIN users ON orders.user_id = users.id
+      JOIN products ON orders.product_id = products.id
+    `);
+
+    res.json(orders);
+
+  } catch (error) {
+    console.error("ADMIN ORDERS ERROR:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+exports.updateDeliveryStatus = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { status } = req.body;
 
     let statusCode = 0;
 
@@ -63,31 +120,38 @@ exports.updateDelivery = async (req, res) => {
 
     await db.execute(
       "UPDATE orders SET delivery_status=?, status_code=? WHERE id=?",
-      [status, statusCode, req.params.id]
+      [status, statusCode, orderId]
     );
 
-    res.json({ message: "Delivery Updated Successfully" });
+    res.json({ message: "Delivery status updated" });
 
   } catch (error) {
-    console.error(error);
+    console.error("UPDATE DELIVERY ERROR:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };
-exports.getAllOrders = async (req, res) => {
-  try {
-    const [orders] = await db.execute(`
-      SELECT o.id, u.name AS user_name, p.name AS product_name,
-             o.quantity, o.delivery_status, o.status_code, o.created_at
-      FROM orders o
-      JOIN users u ON o.user_id = u.id
-      JOIN products p ON o.product_id = p.id
-      ORDER BY o.created_at DESC
-    `);
 
-    res.json(orders);
+exports.checkout = async (req, res) => {
+  const user_id = req.user.id;
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
+  const [cartItems] = await db.execute(
+    "SELECT * FROM cart WHERE user_id=?",
+    [user_id]
+  );
+
+  for (let item of cartItems) {
+    await db.execute(
+      "INSERT INTO orders (user_id, product_id, quantity) VALUES (?, ?, ?)",
+      [user_id, item.product_id, item.quantity]
+    );
+
+    await db.execute(
+      "UPDATE products SET stock = stock - ? WHERE id=?",
+      [item.quantity, item.product_id]
+    );
   }
+
+  await db.execute("DELETE FROM cart WHERE user_id=?", [user_id]);
+
+  res.json({ message: "Order placed successfully" });
 };
