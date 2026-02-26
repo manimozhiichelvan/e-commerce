@@ -1,63 +1,60 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import axios from "../api/axios";
-import "../styles/Login.css";
+import { useNavigate, Link } from "react-router-dom";
+import "../styles/Auth.css";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({});
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-
     try {
-      const res = await axios.post("/auth/login", {
-        email,
-        password,
-      });
+      const res = await axios.post("/auth/login", form);
+
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
       localStorage.setItem("account_type", res.data.account_type);
-      if (res.data.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/products");
-      }
 
-    } catch (error) {
-      alert(error.response?.data?.message || "Login Failed");
+      if (res.data.role === "admin") navigate("/admin");
+      else navigate("/products");
+    } catch {
+      alert("Invalid credentials");
     }
   };
 
   return (
-    <div className="login-container">
-      <form className="login-form" onSubmit={handleLogin}>
-        <h2>Login</h2>
+    <div className="auth-wrapper">
+      <div className="auth-box">
+        <h2 className="auth-logo">Amazon</h2>
+        <form onSubmit={submit}>
+          <h3>Sign-In</h3>
 
-        <input
-          type="email"
-          placeholder="Enter Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+          <label>Email</label>
+          <input
+            type="email"
+            required
+            onChange={(e) =>
+              setForm({ ...form, email: e.target.value })
+            }
+          />
 
-        <input
-          type="password"
-          placeholder="Enter Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <label>Password</label>
+          <input
+            type="password"
+            required
+            onChange={(e) =>
+              setForm({ ...form, password: e.target.value })
+            }
+          />
 
-        <button type="submit">Login</button>
+          <button>Login</button>
 
-        <p>
-          Dont have an account?{" "}
-          <Link to="/register">Register</Link>
-        </p>
-      </form>
+          <p className="auth-switch">
+            New to Amazon? <Link to="/register">Create account</Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 };

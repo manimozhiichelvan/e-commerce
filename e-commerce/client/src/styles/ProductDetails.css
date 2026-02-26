@@ -1,39 +1,118 @@
-.details-container {
-  padding: 40px;
+/* Page Background */
+.details-page {
   background-color: #eaeded;
   min-height: 100vh;
+  padding: 40px 80px;
 }
 
-.details-card {
-  display: flex;
-  gap: 30px;
+/* Main Layout */
+.details-container {
   background: white;
-  padding: 30px;
-  border-radius: 5px;
+  display: flex;
+  gap: 60px;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
 }
 
-.details-card img {
-  width: 350px;
-  height: 350px;
-  object-fit: cover;
+/* LEFT SIDE IMAGE */
+.details-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+.details-image img {
+  width: 100%;
+  max-width: 450px;
+  height: 400px;
+  object-fit: contain;
+  background: #fff;
+  padding: 20px;
+}
+
+/* RIGHT SIDE INFO */
 .details-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .details-info h2 {
+  font-size: 22px;
   margin-bottom: 15px;
 }
 
-.details-info button {
-  padding: 10px 15px;
-  background-color: #ffd814;
-  border: 1px solid #fcd200;
-  cursor: pointer;
+/* Price */
+.details-price {
+  font-size: 22px;
   font-weight: bold;
+  color: #b12704;
+  margin-bottom: 15px;
 }
 
-.details-info button:hover {
+/* Stock Badge */
+.stock-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.stock-badge.in-stock {
+  background-color: #e6f4ea;
+  color: #067d2f;
+}
+
+.stock-badge.out-stock {
+  background-color: #fdecea;
+  color: #b12704;
+}
+
+/* Buy Box */
+.buy-box {
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 6px;
+  margin-top: 20px;
+  background: #fafafa;
+}
+
+.buy-box h3 {
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.buy-box button {
+  width: 100%;
+  padding: 10px;
+  font-weight: bold;
+  border-radius: 4px;
+  border: 1px solid #fcd200;
+  background-color: #ffd814;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.buy-box button:hover {
   background-color: #f7ca00;
+}
+
+.buy-box button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .details-container {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .details-image img {
+    height: 300px;
+  }
 }

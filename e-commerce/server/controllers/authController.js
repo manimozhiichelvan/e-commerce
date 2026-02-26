@@ -1,34 +1,25 @@
 const db = require("../config/db");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
-exports.registerUser = async (req, res) => {
+exports.register = async (req, res) => {
   try {
-    const { name, email, password, role, account_type } = req.body;
-
-    const [existing] = await db.execute(
-      "SELECT * FROM users WHERE email=?",
-      [email]
-    );
-
-    if (existing.length > 0) {
-      return res.status(400).json({ message: "User already exists" });
-    }
+    const { name, email, password, account_type } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await db.execute(
-      "INSERT INTO users (name, email, password, role, account_type) VALUES (?, ?, ?, ?, ?)",
-      [name, email, hashedPassword, role || "user", account_type || "free"]
+      "INSERT INTO users (name, email, password, account_type) VALUES (?, ?, ?, ?)",
+      [name, email, hashedPassword, account_type]
     );
 
-    res.status(201).json({ message: "User registered successfully" });
+    res.json({ message: "User Registered Successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Registration failed" });
+    res.status(500).json({ message: "Registration Failed" });
   }
 };
 
-exports.loginUser = async (req, res) => {
+exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -38,7 +29,7 @@ exports.loginUser = async (req, res) => {
     );
 
     if (users.length === 0) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "User Not Found" });
     }
 
     const user = users[0];
@@ -46,25 +37,21 @@ exports.loginUser = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid Password" });
     }
 
     const token = jwt.sign(
-      { id: user.id, role: user.role },
+      { id: user.id, role: user.role, account_type: user.account_type },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
     res.json({
       token,
-      user: {
-        id: user.id,
-        name: user.name,
-        role: user.role,
-        account_type: user.account_type,
-      },
+      role: user.role,
+      account_type: user.account_type,
     });
   } catch (error) {
-    res.status(500).json({ message: "Login failed" });
+    res.status(500).json({ message: "Login Failed" });
   }
 };

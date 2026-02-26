@@ -5,28 +5,29 @@ const Navbar = () => {
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
   const accountType = localStorage.getItem("account_type");
+  const token = localStorage.getItem("token");
 
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
   };
 
+  if (!token) return null; 
   return (
-    <nav className={`navbar ${role === "admin" ? "admin-nav" : ""}`}>
-      <div className="navbar-left">
+    <nav className="navbar">
+      <div className="nav-left">
         <h2
-          style={{ cursor: "pointer" }}
+          className="logo"
           onClick={() =>
             role === "admin"
               ? navigate("/admin")
               : navigate("/products")
           }
         >
-          {role === "admin" ? "Amazon Admin Panel" : "Amazon"}
+          Amazon
         </h2>
       </div>
-
-      <div className="navbar-right">
+      <div className="nav-right">
         {role === "admin" ? (
           <>
             <Link to="/admin">Dashboard</Link>
@@ -36,14 +37,15 @@ const Navbar = () => {
             <Link to="/products">Products</Link>
             <Link to="/cart">Cart</Link>
             <Link to="/my-orders">My Orders</Link>
-
             <span className={`badge ${accountType}`}>
               {accountType?.toUpperCase()}
             </span>
           </>
         )}
 
-        <button onClick={handleLogout}>Logout</button>
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
       </div>
     </nav>
   );

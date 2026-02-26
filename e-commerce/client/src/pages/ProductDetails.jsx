@@ -8,49 +8,66 @@ const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
 
-  const fetchProduct = async () => {
-    const res = await axios.get(`/products/${id}`);
-    setProduct(res.data);
-  };
-
   useEffect(() => {
-    fetchProduct();
-  }, []);
+    axios.get("/products").then((res) => {
+      const found = res.data.find((p) => p.id == id);
+      setProduct(found);
+    });
+  }, [id]);
 
-  const handleBuy = async () => {
-    try {
-      await axios.post("/orders/buy", {
-        product_id: id,
-        quantity: 1,
-      });
-      alert("Order placed successfully");
-    } catch (error) {
-      alert(error.response?.data?.message || "Purchase failed");
-    }
+  const buyNow = async () => {
+    await axios.post("/cart/add", {
+      product_id: product.id,
+      quantity: 1,
+    });
+
+    await axios.post("/cart/checkout");
+
+    alert("Product Purchased Successfully");
   };
 
-  if (!product) return <div>Loading...</div>;
+  if (!product) return <p>Loading...</p>;
 
   return (
     <>
       <Navbar />
-      <div className="details-container">
-        <div className="details-card">
-          <img src={product.image} alt={product.name} />
+
+      <div className="details-page">
+        <div className="details-container">
+          
+          <div className="details-image">
+            <img src={product.image} alt={product.name} />
+          </div>
 
           <div className="details-info">
             <h2>{product.name}</h2>
-            <p>{product.description}</p>
-            <h3>₹ {product.price}</h3>
-            <p>Stock: {product.stock}</p>
 
-            <button
-              disabled={product.stock === 0}
-              onClick={handleBuy}
+            <div className="details-price">
+              ₹ {product.price}
+            </div>
+
+            <div
+              className={`stock-badge ${
+                product.stock > 0 ? "in-stock" : "out-stock"
+              }`}
             >
-              {product.stock > 0 ? "Buy Now" : "Out of Stock"}
-            </button>
+              {product.stock > 0
+                ? `In Stock (${product.stock})`
+                : "Out of Stock"}
+            </div>
+
+            <div className="buy-box">
+              <h3>Buy Now</h3>
+
+              <button
+                disabled={product.stock === 0}
+                onClick={buyNow}
+              >
+                Buy Now
+              </button>
+            </div>
           </div>
+
         </div>
       </div>
     </>

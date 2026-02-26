@@ -6,55 +6,40 @@ import "../styles/MyOrders.css";
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
 
-  const fetchOrders = async () => {
-    try {
-      const res = await axios.get("/orders/my-orders");
-      setOrders(res.data);
-    } catch (error) {
-      alert("Failed to load orders");
-    }
-  };
-
   useEffect(() => {
-    fetchOrders();
+    axios.get("/orders/my-orders")
+      .then((res) => setOrders(res.data))
+      .catch((err) => console.log(err));
   }, []);
 
   return (
     <>
       <Navbar />
 
-      <div className="orders-container">
+      <div className="orders-page">
         <h2>My Orders</h2>
 
-        {orders.length === 0 ? (
+        {orders.length === 0 && (
           <p>No orders placed yet.</p>
-        ) : (
-          <table className="orders-table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Delivery Status</th>
-                <th>Status Code</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {orders.map((o) => (
-                <tr key={o.id}>
-                  <td>{o.product_name}</td>
-                  <td>{o.quantity}</td>
-                  <td className={`status ${o.delivery_status}`}>
-                    {o.delivery_status}
-                  </td>
-                  <td>{o.status_code}</td>
-                  <td>{new Date(o.created_at).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         )}
+
+        {orders.map((order) => (
+          <div key={order.id} className="order-card">
+            <img src={order.image} alt={order.name} />
+
+            <div className="order-info">
+              <h3>{order.name}</h3>
+              <p>Price: ₹ {order.price}</p>
+              <p>Quantity: {order.quantity}</p>
+              <p className="status">
+                Status: {order.delivery_status}
+              </p>
+              <p className="date">
+                Ordered on: {new Date(order.created_at).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
     </>
   );

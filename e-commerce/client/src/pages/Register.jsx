@@ -1,79 +1,70 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import axios from "../api/axios";
-import "../styles/Register.css";
+import { useNavigate, Link } from "react-router-dom";
+import "../styles/Auth.css";
 
 const Register = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [accountType, setAccountType] = useState("free");
-
+  const [form, setForm] = useState({});
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-
-    try {
-      await axios.post("/auth/register", {
-        name,
-        email,
-        password,
-        account_type: accountType,
-      });
-
-      alert("Registration successful!");
-      navigate("/login");
-
-    } catch (error) {
-      alert(error.response?.data?.message || "Registration failed");
-    }
+    await axios.post("/auth/register", form);
+    alert("Account Created Successfully");
+    navigate("/login");
   };
 
   return (
-    <div className="register-container">
-      <form className="register-form" onSubmit={handleRegister}>
-        <h2>Register</h2>
+    <div className="auth-wrapper">
+      <div className="auth-box">
+        <h2 className="auth-logo">Amazon</h2>
+        <form onSubmit={submit}>
+          <h3>Create Account</h3>
 
-        <input
-          type="text"
-          placeholder="Enter Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
+          <label>Name</label>
+          <input
+            required
+            onChange={(e) =>
+              setForm({ ...form, name: e.target.value })
+            }
+          />
 
-        <input
-          type="email"
-          placeholder="Enter Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+          <label>Email</label>
+          <input
+            type="email"
+            required
+            onChange={(e) =>
+              setForm({ ...form, email: e.target.value })
+            }
+          />
 
-        <input
-          type="password"
-          placeholder="Enter Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <label>Password</label>
+          <input
+            type="password"
+            required
+            onChange={(e) =>
+              setForm({ ...form, password: e.target.value })
+            }
+          />
 
-        <select
-          value={accountType}
-          onChange={(e) => setAccountType(e.target.value)}
-        >
-          <option value="free">Free</option>
-          <option value="pro">Pro</option>
-          <option value="premium">Premium</option>
-        </select>
+          <label>Choose Plan</label>
+          <select
+            onChange={(e) =>
+              setForm({ ...form, account_type: e.target.value })
+            }
+          >
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="premium">Premium</option>
+          </select>
 
-        <button type="submit">Register</button>
+          <button>Create Account</button>
 
-        <p>
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
-      </form>
+          <p className="auth-switch">
+            Already have account? <Link to="/login">Login</Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 };

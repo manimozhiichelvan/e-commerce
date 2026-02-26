@@ -3,57 +3,97 @@
   color: white;
   display: flex;
   justify-content: space-between;
-  padding: 15px 30px;
   align-items: center;
+  padding: 10px 60px;
+  height: 60px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.admin-nav {
-  background-color: #111;
-}
-
-.navbar-left h2 {
-  margin: 0;
-}
-
-.navbar-right {
+.nav-left {
   display: flex;
-  gap: 20px;
   align-items: center;
 }
 
-.navbar-right a {
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ff9900;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: 0.2s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.nav-right a {
   color: white;
   text-decoration: none;
+  font-size: 14px;
+  position: relative;
+  padding: 5px 0;
+  transition: 0.2s ease;
 }
 
-.navbar-right a:hover {
-  text-decoration: underline;
-}
-
-.navbar-right button {
-  padding: 6px 12px;
-  background-color: #febd69;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
+.nav-right a:hover {
+  color: #ff9900;
 }
 
 .badge {
   padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 12px;
+  border-radius: 4px;
+  font-size: 11px;
   font-weight: bold;
-  color: white;
+  text-transform: uppercase;
 }
 
 .badge.free {
-  background-color: gray;
+  background-color: #6c757d;
+  color: white;
 }
 
 .badge.pro {
-  background-color: blue;
+  background-color: #0073e6;
+  color: white;
 }
 
 .badge.premium {
-  background-color: purple;
+  background-color: #cc0000;
+  color: white;
+}
+
+.logout-btn {
+  background-color: #ff9900;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: #e68a00;
+}
+
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px 20px;
+  }
+
+  .nav-right {
+    gap: 15px;
+  }
+
+  .logo {
+    font-size: 20px;
+  }
 }

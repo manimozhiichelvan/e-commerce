@@ -4,35 +4,18 @@ import Navbar from "../components/Navbar";
 import "../styles/Cart.css";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
-
-  const fetchCart = async () => {
-    try {
-      const res = await axios.get("/cart");
-      setCartItems(res.data);
-    } catch (error) {
-      alert("Failed to load cart");
-    }
-  };
+  const [items, setItems] = useState([]);
+  const [summary, setSummary] = useState(null);
 
   useEffect(() => {
-    fetchCart();
+    axios.get("/cart").then((res) => setItems(res.data));
   }, []);
 
-  const handleCheckout = async () => {
-    try {
-      await axios.post("/cart/checkout");
-      alert("Order placed successfully");
-      fetchCart();
-    } catch (error) {
-      alert("Checkout failed");
-    }
+  const checkout = async () => {
+    const res = await axios.post("/cart/checkout");
+    setSummary(res.data);
+    alert("Order Placed Successfully");
   };
-
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
 
   return (
     <>
@@ -42,35 +25,34 @@ const Cart = () => {
         <div className="cart-left">
           <h2>Shopping Cart</h2>
 
-          {cartItems.length === 0 ? (
-            <p className="empty-cart">Your cart is empty</p>
-          ) : (
-            cartItems.map((item) => (
-              <div key={item.id} className="cart-item">
-                <img src={item.image} alt={item.name} />
+          {items.map((item) => (
+            <div key={item.id} className="cart-card">
+              <img src={item.image} alt={item.name} />
 
-                <div className="cart-details">
-                  <h3>{item.name}</h3>
-                  <p className="price">₹ {item.price}</p>
-                  <p>Quantity: {item.quantity}</p>
-                </div>
+              <div className="cart-info">
+                <h3>{item.name}</h3>
+                <p className="price">₹ {item.price}</p>
+                <p>Quantity: {item.quantity}</p>
+                <p className="stock">
+                  In Stock: {item.stock ?? "Available"}
+                </p>
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </div>
 
-        {cartItems.length > 0 && (
-          <div className="cart-right">
-            <h3>
-              Subtotal ({cartItems.length} items):
-            </h3>
-            <h2>₹ {totalPrice}</h2>
+        <div className="cart-summary">
+          <button onClick={checkout}>Proceed to Checkout</button>
 
-            <button onClick={handleCheckout}>
-              Proceed to Checkout
-            </button>
-          </div>
-        )}
+          {summary && (
+            <div className="summary-box">
+              <p>Original: ₹{summary.originalTotal}</p>
+              <p>Discount: {summary.discountApplied}</p>
+              <h3>Total: ₹{summary.finalAmount}</h3>
+              <p>{summary.delivery}</p>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

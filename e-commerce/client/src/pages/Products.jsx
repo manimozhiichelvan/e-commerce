@@ -8,38 +8,32 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
-  const role = localStorage.getItem("role");
 
-  const fetchProducts = async (query = "") => {
-    try {
-      const res = await axios.get(`/products?search=${query}`);
-      setProducts(res.data);
-    } catch (error) {
-      console.log("Search error");
-    }
-  };
-
+  // Fetch products with live search
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    const delay = setTimeout(() => {
+      axios
+        .get(`/products?search=${search}`)
+        .then((res) => setProducts(res.data))
+        .catch((err) => console.log(err));
+    }, 300);
 
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      fetchProducts(search);
-    }, 300); 
-
-    return () => clearTimeout(delayDebounce);
+    return () => clearTimeout(delay);
   }, [search]);
 
-  const handleAddToCart = async (id) => {
+  // Add to cart
+  const addToCart = async (e, id) => {
+    e.stopPropagation(); // Prevent card click redirect
+
     try {
       await axios.post("/cart/add", {
         product_id: id,
         quantity: 1,
       });
-      alert("Added to cart successfully");
-    } catch (error) {
-      alert("Add to cart failed");
+
+      alert("Added to Cart");
+    } catch (err) {
+      alert(err.response?.data?.message || "Error adding to cart");
     }
   };
 
@@ -47,56 +41,60 @@ const Products = () => {
     <>
       <Navbar />
 
-      <div className="products-container">
-
-        <div className="search-bar">
+      <div className="products-page">
+        {/* Centered Search */}
+        <div className="search-wrapper">
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder="Search for products..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
-        <div className="product-grid">
-          {products.length === 0 ? (
-            <h2>No Products Found</h2>
-          ) : (
-            products.map((p) => (
-              <div key={p.id} className="product-card">
-
-                <img
-                  src={p.image}
-                  alt={p.name}
-                  onClick={() => navigate(`/product/${p.id}`)}
-                  style={{ cursor: "pointer" }}
-                />
-
-                <h3
-                  onClick={() => navigate(`/product/${p.id}`)}
-                  style={{ cursor: "pointer" }}
-                >
-                  {p.name}
-                </h3>
-
-                <p>{p.description}</p>
-                <p className="price">₹ {p.price}</p>
-                <p>Stock: {p.stock}</p>
-
-                {role !== "admin" && (
-                  <button
-                    disabled={p.stock === 0}
-                    onClick={() => handleAddToCart(p.id)}
-                  >
-                    {p.stock > 0 ? "Add to Cart" : "Out of Stock"}
-                  </button>
-                )}
-
-              </div>
-            ))
+        {/* Product Grid */}
+        <div className="products-container">
+          {products.length === 0 && (
+            <p style={{ textAlign: "center" }}>No products found</p>
           )}
-        </div>
 
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="product-card"
+              onClick={() => navigate(`/product/${product.id}`)}
+            >
+              {/* Image */}
+              <div className="image-wrapper">
+                <img src={product.image} alt={product.name} />
+              </div>
+
+              {/* Info */}
+              <div className="product-info">
+                <h3>{product.name}</h3>
+
+                <p className="price">₹ {product.price}</p>
+
+                <p
+                  className={`stock ${
+                    product.stock > 0 ? "in-stock" : "out-stock"
+                  }`}
+                >
+                  {product.stock > 0
+                    ? `In Stock (${product.stock})`
+                    : "Out of Stock"}
+                </p>
+
+                <button
+                  disabled={product.stock === 0}
+                  onClick={(e) => addToCart(e, product.id)}
+                >
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </>
   );
