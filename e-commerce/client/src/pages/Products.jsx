@@ -9,21 +9,15 @@ const Products = () => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  // Fetch products with live search
   useEffect(() => {
-    const delay = setTimeout(() => {
-      axios
-        .get(`/products?search=${search}`)
-        .then((res) => setProducts(res.data))
-        .catch((err) => console.log(err));
-    }, 300);
-
-    return () => clearTimeout(delay);
+    axios
+      .get(`/products?search=${search}`)
+      .then((res) => setProducts(res.data))
+      .catch((err) => console.log(err));
   }, [search]);
 
-  // Add to cart
   const addToCart = async (e, id) => {
-    e.stopPropagation(); // Prevent card click redirect
+    e.stopPropagation();
 
     try {
       await axios.post("/cart/add", {
@@ -33,7 +27,7 @@ const Products = () => {
 
       alert("Added to Cart");
     } catch (err) {
-      alert(err.response?.data?.message || "Error adding to cart");
+      alert(err.response?.data?.message);
     }
   };
 
@@ -42,44 +36,34 @@ const Products = () => {
       <Navbar />
 
       <div className="products-page">
-        {/* Centered Search */}
         <div className="search-wrapper">
           <input
             type="text"
-            placeholder="Search for products..."
+            placeholder="Search products..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
-        {/* Product Grid */}
         <div className="products-container">
-          {products.length === 0 && (
-            <p style={{ textAlign: "center" }}>No products found</p>
-          )}
-
           {products.map((product) => (
             <div
               key={product.id}
               className="product-card"
               onClick={() => navigate(`/product/${product.id}`)}
             >
-              {/* Image */}
               <div className="image-wrapper">
-                <img src={product.image} alt={product.name} />
+                <img
+                  src={`http://localhost:5000${product.image}`}
+                  alt={product.name}
+                />
               </div>
 
-              {/* Info */}
               <div className="product-info">
                 <h3>{product.name}</h3>
-
                 <p className="price">₹ {product.price}</p>
 
-                <p
-                  className={`stock ${
-                    product.stock > 0 ? "in-stock" : "out-stock"
-                  }`}
-                >
+                <p className="stock">
                   {product.stock > 0
                     ? `In Stock (${product.stock})`
                     : "Out of Stock"}

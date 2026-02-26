@@ -12,40 +12,41 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  if (!token) return null; 
+  if (!token) return null;
+
   return (
     <nav className="navbar">
       <div className="nav-left">
         <h2
           className="logo"
-          onClick={() =>
-            role === "admin"
-              ? navigate("/admin")
-              : navigate("/products")
-          }
+          onClick={() => navigate("/products")}
         >
           Amazon
         </h2>
       </div>
+
       <div className="nav-right">
-        {role === "admin" ? (
+
+        <Link to="/products">Products</Link>
+
+        {role !== "admin" && (
           <>
-            <Link to="/admin">Dashboard</Link>
-          </>
-        ) : (
-          <>
-            <Link to="/products">Products</Link>
             <Link to="/cart">Cart</Link>
             <Link to="/my-orders">My Orders</Link>
+
             <span className={`badge ${accountType}`}>
               {accountType?.toUpperCase()}
             </span>
           </>
         )}
+        {role === "admin" && (
+          <Link to="/admin">Dashboard</Link>
+        )}
 
         <button className="logout-btn" onClick={handleLogout}>
           Logout
         </button>
+
       </div>
     </nav>
   );
